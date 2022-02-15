@@ -10,6 +10,7 @@ settings.configure()
 import pandas as pd
 import spacy
 
+
 def main():
     freq_dict = pd.read_csv("FREQUENCIES_DIC.csv")
     values = []
