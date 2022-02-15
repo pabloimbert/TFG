@@ -10,6 +10,10 @@ settings.configure()
 import pandas as pd
 import spacy
 
+# FOR THE MEDIAN
+import statistics
+
+
 
 def main():
     freq_dict = pd.read_csv("FREQUENCIES_DIC.csv")
@@ -19,8 +23,8 @@ def main():
     texts_random = []
     mdic_training = []
     mdic_random = []
-    min_training = 10000000000000
-    min_random = 10000000000000
+    min_training = 100000
+    min_random = 100000
     max_training = 0
     max_random = 0
     avg_training = 0
@@ -117,12 +121,12 @@ def main():
     print("------------------------------     TRAINING.TXT     ------------------------------")
     print(values_training)
     print(mdic_training)
-    print("MAX: " + max_training + " MIN: " + min_training + " AVG: " + avg_training)
+    print("MAX:", max_training, "MIN:", min_training, "AVG:", avg_training, "MEDIAN:", statistics.median(values_training))
 
-    print("\n\n\n\n\n------------------------------     RANDOM_TWEETS.TXT     ------------------------------")
+    print("\n\n\n------------------------------     RANDOM_TWEETS.TXT     ------------------------------")
     print(values_random)
     print(mdic_random)
-    print("MAX: " + max_random + " MIN: " + min_random + " AVG: " + avg_random)
+    print("MAX:", max_random, "MIN:", min_random, "AVG:", avg_random, "MEDIAN:", statistics.median(values_random))
 
 
 if __name__ == "__main__":
