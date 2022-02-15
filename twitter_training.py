@@ -6,7 +6,7 @@ import json
 # TO COLLECT THE TWEETS
 import tweepy
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv , find_dotenv
 from pathlib import Path
 import ujson as ujson
 from tweepy import AppAuthHandler
@@ -47,9 +47,8 @@ class TwitterClient(object):
         # export 'BEARER_TOKEN'='<your_bearer_token>'
 
         # En este caso no tengo access_token y access_key sino bearer_token, pues al estar usando una cuenta para academic research solo tengo OAuth 2.0 en vez de OAuth 1.0
-        # bearer_token = 'XXXX'
-        dotenv_path = Path('/home/kali/TwitterTokens.env')
-        load_dotenv(dotenv_path=dotenv_path)
+
+        load_dotenv(find_dotenv("TwitterTokens.env"))
 
         consumer_key = os.getenv('API_KEY')
         consumer_secret = os.getenv('API_KEY_SECRET')
