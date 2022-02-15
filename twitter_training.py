@@ -1,6 +1,8 @@
 import datetime
 import re
+from django.conf import settings
 
+settings.configure()
 # TO CONVERT THE INFO TO A JSON
 import json
 # TO COLLECT THE TWEETS
@@ -13,6 +15,7 @@ from tweepy import AppAuthHandler
 
 # TO FILTER THE EMOJIS FROM THE TEXT
 import emoji
+
 
 # FOR THE SENTIMENT ANALYSIS
 # from classifier import *
@@ -69,7 +72,7 @@ class TwitterClient(object):
             alltweets = []
 
             # primero buscamos los 200 primeros (tam max del count)
-            new_tweets = self.api.search_tweets(q="-filter:media -filter:retweets -filter:quote -filter:replies", count=2, lang="es")
+            new_tweets = self.api.search_tweets(q="-filter:media -filter:retweets -filter:quote -filter:replies", count=100, lang="es")
 
             # guardamos estos tweets en nuestro array de todos los tweets
             alltweets.extend(new_tweets)
