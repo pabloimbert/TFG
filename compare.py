@@ -13,9 +13,12 @@ import spacy
 
 def main():
     freq_dict = pd.read_csv("FREQUENCIES_DIC.csv")
-    values_training = [], values_random = []
-    texts_training = [], texts_random = []
-    mdic_training = [], mdic_random = []
+    values_training = []
+    values_random = []
+    texts_training = []
+    texts_random = []
+    mdic_training = []
+    mdic_random = []
     min_training = 10000000000000
     min_random = 10000000000000
     max_training = 0
