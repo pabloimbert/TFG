@@ -32,7 +32,7 @@ def main():
         lines_random = f.read()
 
     texts_training = lines_training.split("#$%")
-    texts_random = lines_random.split("#$%")
+    texts_random = lines_random.split("\n")
     nlp = spacy.load("es_core_news_sm")
     nlp_s = stanza.Pipeline(lang='es', processors='tokenize,mwt,pos,lemma')
 
