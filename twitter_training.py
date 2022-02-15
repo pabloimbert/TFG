@@ -5,6 +5,9 @@ import re
 import json
 # TO COLLECT THE TWEETS
 import tweepy
+import os
+from dotenv import load_dotenv
+from pathlib import Path
 import ujson as ujson
 from tweepy import AppAuthHandler
 
@@ -45,8 +48,11 @@ class TwitterClient(object):
 
         # En este caso no tengo access_token y access_key sino bearer_token, pues al estar usando una cuenta para academic research solo tengo OAuth 2.0 en vez de OAuth 1.0
         # bearer_token = 'XXXX'
-        consumer_key = 'XXXX'
-        consumer_secret = 'XXXX'
+        dotenv_path = Path('/home/kali/TwitterTokens.env')
+        load_dotenv(dotenv_path=dotenv_path)
+
+        consumer_key = os.getenv('API_KEY')
+        consumer_secret = os.getenv('API_KEY_SECRET')
 
         try:
             # creamos el objeto AppAuthHandler
@@ -64,7 +70,7 @@ class TwitterClient(object):
             alltweets = []
 
             # primero buscamos los 200 primeros (tam max del count)
-            new_tweets = self.api.search_tweets(q="-filter:media -filter:retweets -filter:quote -filter:replies", count=153, lang="es")
+            new_tweets = self.api.search_tweets(q="-filter:media -filter:retweets -filter:quote -filter:replies", count=2, lang="es")
 
             # guardamos estos tweets en nuestro array de todos los tweets
             alltweets.extend(new_tweets)
@@ -92,10 +98,11 @@ class TwitterClient(object):
 def main():
     api = TwitterClient()
     tweets = api.get_useful_tweets()
-    f = open("random_tweets.txt", 'w')
+    f = open("random_tweets.txt", 'a')
+
     for tweet in tweets:
-        f.write(tweet)
-        f.write("#$%")
+        f.write(tweet.replace("\n", " "))
+        f.write("\n")
 
 
 

@@ -14,10 +14,11 @@ import emoji
 # TO READ THE CONVERSATIONS FROM PHOTOS
 import requests
 import io
-import pytesseract
 from PIL import Image
 # import easyocr
-
+import os
+from dotenv import load_dotenv
+from pathlib import Path
 
 # FOR THE SENTIMENT ANALYSIS
 # from classifier import *
@@ -53,8 +54,11 @@ class TwitterClient(object):
 
         # En este caso no tengo access_token y access_key sino bearer_token, pues al estar usando una cuenta para academic research solo tengo OAuth 2.0 en vez de OAuth 1.0
         # bearer_token = 'XXXX'
-        consumer_key = 'XXXX'
-        consumer_secret = 'XXXXX'
+        dotenv_path = Path('/home/kali/TwitterTokens.env')
+        load_dotenv(dotenv_path=dotenv_path)
+
+        consumer_key = os.getenv('API_KEY')
+        consumer_secret = os.getenv('API_KEY_SECRET')
 
         try:
             # creamos el objeto AppAuthHandler
@@ -177,7 +181,7 @@ def main():
     print(']')
 
 
-    f = open("examples.json", 'w')
+    f = open("examples.json", 'a')
     f.write('[')
     for json in json_array:
         f.write(json[1:-1])
