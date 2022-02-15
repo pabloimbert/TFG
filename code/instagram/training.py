@@ -41,7 +41,7 @@ class InstagramClient(object):
                 captions.append(media_caption)
             i = i + 1
 
-        f = open("training.txt", 'w')
+        f = open("../../text/training.txt", 'w')
         for caption in captions:
             f.write(caption)
             f.write("#$%")

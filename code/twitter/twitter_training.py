@@ -51,7 +51,7 @@ class TwitterClient(object):
 
         # En este caso no tengo access_token y access_key sino bearer_token, pues al estar usando una cuenta para academic research solo tengo OAuth 2.0 en vez de OAuth 1.0
 
-        load_dotenv(find_dotenv("env/TwitterTokens.env"))
+        load_dotenv(find_dotenv("../../env/TwitterTokens.env"))
 
         consumer_key = os.getenv('API_KEY')
         consumer_secret = os.getenv('API_KEY_SECRET')
@@ -105,7 +105,7 @@ class TwitterClient(object):
 def main():
     api = TwitterClient()
     tweets = api.get_useful_tweets()
-    f = open("random_tweets.txt", 'a')
+    f = open("../../text/random_tweets.txt", 'a')
 
     for tweet in tweets:
         f.write(tweet.replace("\n", " "))

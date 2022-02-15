@@ -180,7 +180,7 @@ def main():
     print(']')
 
 
-    f = open("examples.json", 'a')
+    f = open("../../json/examples.json", 'a')
     f.write('[')
     for json in json_array:
         f.write(json[1:-1])

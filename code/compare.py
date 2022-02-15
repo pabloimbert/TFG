@@ -16,7 +16,7 @@ import statistics
 
 
 def main():
-    freq_dict = pd.read_csv("FREQUENCIES_DIC.csv")
+    freq_dict = pd.read_csv("../dict/FREQUENCIES_DIC.csv")
     values_training = []
     values_random = []
     texts_training = []
@@ -32,10 +32,10 @@ def main():
     accumulative = 0
 
 
-    with open("training.txt") as f:
+    with open("../text/training.txt") as f:
         lines_training = f.read()
 
-    with open("random_tweets.txt") as f:
+    with open("../text/random_tweets.txt") as f:
         lines_random = f.read()
 
     texts_training = lines_training.split("#$%")
