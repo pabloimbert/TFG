@@ -48,7 +48,7 @@ class TwitterClient(object):
 
         # En este caso no tengo access_token y access_key sino bearer_token, pues al estar usando una cuenta para academic research solo tengo OAuth 2.0 en vez de OAuth 1.0
 
-        load_dotenv(find_dotenv("TwitterTokens.env"))
+        load_dotenv(find_dotenv("env/TwitterTokens.env"))
 
         consumer_key = os.getenv('API_KEY')
         consumer_secret = os.getenv('API_KEY_SECRET')
@@ -76,7 +76,12 @@ class TwitterClient(object):
 
             return alltweets
 
+    def clean_text(self, text):
 
+        clean_text = re.sub(emoji.get_emoji_regexp(), " ", text)
+        clean_text = re.sub("(@[A-Za-z0-9_]+)|(#[A-Za-z0-9_]+)", "", clean_text)
+        clean_text = re.sub(r"https\S+", "", clean_text)
+        return " ".join(clean_text.split())
 
     def get_useful_tweets(self):
         tweets = self.get_all_tweets_from_user()
@@ -86,7 +91,7 @@ class TwitterClient(object):
         for tweet in tweets:
             if len(tweet.text) > 0:  # and sentiment_classifier.predict(tweet.text) <= 0.5:
                 status = self.api.get_status(tweet.id, tweet_mode="extended")
-                text = status.full_text
+                text = self.clean_text(status.full_text)
                 link = "https://twitter.com/" + tweet.user.screen_name + "/status/" + str(tweet.id)
                 print(link)
                 meaningful_tweets.append(text)
