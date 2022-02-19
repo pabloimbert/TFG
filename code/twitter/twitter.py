@@ -54,7 +54,7 @@ class TwitterClient(object):
 
         # En este caso no tengo access_token y access_key sino bearer_token, pues al estar usando una cuenta para academic research solo tengo OAuth 2.0 en vez de OAuth 1.0
 
-        load_dotenv(find_dotenv("TwitterTokens.env"))
+        load_dotenv(find_dotenv("env/TwitterTokens.env"))
 
         consumer_key = os.getenv('API_KEY')
         consumer_secret = os.getenv('API_KEY_SECRET')
@@ -159,7 +159,18 @@ class TwitterClient(object):
         status = self.api.get_status(tweet_id, tweet_mode="extended")
         text = self.clean_text(status.full_text)
 
-        dataset = pd.DataFrame(data={'link': [link], 'id': [tweet_id], 'text': [text], 'user': [user], 'date': [date], 'likes': [n_likes], 'retweets': [n_retweets], 'replies': [n_replies]})
+        l_hashtags = []
+        text_hashtags = text.split('#')
+
+        i = 1
+        for hashtag in text_hashtags:
+            if (i != 1):
+                aux = hashtag.split(' ')
+                l_hashtags.append(aux[0])
+            i+=1
+
+
+        dataset = pd.DataFrame(data={'link': [link], 'id': [tweet_id], 'text': [text], 'user': [user], 'date': [date], 'likes': [n_likes], 'retweets': [n_retweets], 'replies': [n_replies], 'hashtags': [l_hashtags]})
         dataset['date'] = dataset['date'].dt.strftime('%d/%m/%y - %H:%M')
         json_object = dataset.to_json(force_ascii=False, orient='records').replace('\/', '/')
         #json_object = json.dumps(dataset)
