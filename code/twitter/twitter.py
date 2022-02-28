@@ -96,7 +96,7 @@ class TwitterClient(object):
         alltweets = []
 
         # primero buscamos los 200 primeros (tam max del count)
-        new_tweets = self.api.search_tweets(q='from:' + screen_name + ' -filter:retweets', count=10, lang="es")
+        new_tweets = self.api.search_tweets(q='from:' + screen_name , count=20, lang="es")
 
         # guardamos estos tweets en nuestro array de todos los tweets
         alltweets.extend(new_tweets)
@@ -190,7 +190,7 @@ def main():
         print(json[1:-1])
     print(']')
 
-
+   # os.chdir('text')
     f = open("../../json/examples.json", 'a')
     f.write('[')
     for json in json_array:

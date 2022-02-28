@@ -72,7 +72,7 @@ class TwitterClient(object):
             alltweets = []
 
             # primero buscamos los 200 primeros (tam max del count)
-            new_tweets = self.api.search_tweets(q="-filter:media -filter:retweets -filter:quote -filter:replies", count=100, lang="es")
+            new_tweets = self.api.search_tweets(q="-filter:media -filter:retweets -filter:quote -filter:replies", count=1, lang="es")
 
             # guardamos estos tweets en nuestro array de todos los tweets
             alltweets.extend(new_tweets)
@@ -84,6 +84,7 @@ class TwitterClient(object):
         clean_text = re.sub(emoji.get_emoji_regexp(), " ", text)
         clean_text = re.sub("(@[A-Za-z0-9_]+)|(#[A-Za-z0-9_]+)", "", clean_text)
         clean_text = re.sub(r"https\S+", "", clean_text)
+
         return " ".join(clean_text.split())
 
     def get_useful_tweets(self):
@@ -105,7 +106,8 @@ class TwitterClient(object):
 def main():
     api = TwitterClient()
     tweets = api.get_useful_tweets()
-    f = open("../../text/random_tweets.txt", 'a')
+    os.chdir('text')
+    f = open("random_tweets.txt", 'a')
 
     for tweet in tweets:
         f.write(tweet.replace("\n", " "))

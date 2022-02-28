@@ -5,11 +5,13 @@ import stanza
 
 # TO FILTER THE EMOJIS FROM THE TEXT
 import emoji
+import string
 
+import pandas as pd
 
-# FOR THE SENTIMENT ANALYSIS
-# from classifier import *
-from afinn import Afinn
+import keyring as kr
+import instagrapi
+
 from instagrapi import Client
 from collections import Counter
 import spacy
@@ -23,7 +25,18 @@ USERNAME = 'trabajosruineros'
 class InstagramClient(object):
     def __init__(self):
         self.cl = Client()
-        self.cl.login('mentalrevolutionfdi', 'XXXXXX')
+        credential =kr.get_credential("system", "mentalrevolutionfdi")
+        self.cl.login(credential.username,credential.password)
+
+    def clean_text(self, text):
+
+        clean_text = re.sub(emoji.get_emoji_regexp(), " ", text)
+        clean_text = re.sub("(@.+)|(#.+)•", "", clean_text)
+        clean_text = re.sub(r"https\S+", "", clean_text)
+        clean_text = re.sub(r'[^\w]', ' ', clean_text)
+        clean_text.toLowerCase()
+
+        return " ".join(clean_text.split())
 
     def getMedia(self, userName):
         user_id = self.cl.user_id_from_username(userName)
@@ -38,27 +51,23 @@ class InstagramClient(object):
         for media in medias:
             if i > 650:
                 media_caption = media.dict().get('caption_text')
+                media_caption=self.clean_text(media_caption)
                 captions.append(media_caption)
             i = i + 1
 
-        f = open("../../text/training.txt", 'w')
+
+        column_names = ['Text','Prediction']
+        data=[]
+
         for caption in captions:
-            f.write(caption)
-            f.write("#$%")
-            
+            data.append([caption,1])
 
-
-
-
+        training = pd.DataFrame(data, columns=column_names)
+        training.to_csv('../../text/training.csv')
 
 
 
 def main():
-    #api = TwitterClient()
-    #tweets = api.get_useful_tweets_Afinn(screen_name=SCREENNAME)
-    #dataset = 5
-    #for tweet in tweets:
-    #print(api.retreive_info_tweet(tweet, dataset))
     cli = InstagramClient()
     cli.getMedia(USERNAME)
 
