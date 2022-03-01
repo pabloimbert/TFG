@@ -25,6 +25,8 @@ def clean_text(self, text):
     return " ".join(clean_text.split())
 
 def main():
+
+    os.chdir('dict')
     freq_dict = pd.read_csv("../dict/FREQUENCIES_DIC.csv")
     texts_training = []
     texts_news = []
@@ -37,7 +39,6 @@ def main():
     labels = []
     processed_labels = []
 
-    #os.chdir('../text')
     news_2 = pd.read_csv("../text/development.csv")
 
     texts_news.append(news_2['Text'])
