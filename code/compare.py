@@ -2,7 +2,6 @@
 # Cargar textos de prueba
 # Comparar porcentajes del diccionario en los textos
 import re
-import numpy as np
 import stanza
 
 from django.conf import settings
@@ -10,6 +9,7 @@ settings.configure()
 import pandas as pd
 import spacy
 import emoji
+import os
 from sklearn import metrics
 # FOR THE MEDIAN
 import statistics
@@ -37,6 +37,7 @@ def main():
     labels = []
     processed_labels = []
 
+    #os.chdir('../text')
     news_2 = pd.read_csv("../text/development.csv")
 
     texts_news.append(news_2['Text'])
