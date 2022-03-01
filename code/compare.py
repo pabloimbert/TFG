@@ -82,7 +82,11 @@ def main():
             if freq_dict["WORD"][i] in lemmatized and freq_dict["WORD"][i] not in repeated_words:
                 value+=1
                 repeated_words.append(freq_dict["WORD"][i])
-        processed_labels.append(value / len(freq_dict))
+
+        if (value >= 0.1):
+            processed_labels.append(1)
+        else:
+            processed_labels.append(0)
 #############################################################
         accumulative += value
         if (value < min_news):
@@ -119,7 +123,11 @@ def main():
             if freq_dict["WORD"][i] in lemmatized and freq_dict["WORD"][i] not in repeated_words:
                 value += 1
                 repeated_words.append(freq_dict["WORD"][i])
-        processed_labels.append(value / len(freq_dict))
+
+        if (value >= 0.1):
+            processed_labels.append(1)
+        else:
+            processed_labels.append(0)
         accumulative += value
 
         if (value < min_training):
