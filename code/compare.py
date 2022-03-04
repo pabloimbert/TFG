@@ -15,39 +15,38 @@ from sklearn import metrics
 import statistics
 
 
-def clean_text(self, text):
+def clean_text(text):
+
     clean_text = re.sub(emoji.get_emoji_regexp(), " ", text)
     clean_text = re.sub("(@.+)|(#.+)•", "", clean_text)
     clean_text = re.sub(r"https\S+", "", clean_text)
     clean_text = re.sub(r'[^\w]', ' ', clean_text)
-    clean_text.toLowerCase()
+    clean_text = clean_text.lower()
 
     return " ".join(clean_text.split())
 
 def main():
 
-    os.chdir('dict')
+    #os.chdir('dict')
     freq_dict = pd.read_csv("../dict/FREQUENCIES_DIC.csv")
+    print(len(freq_dict))
     texts_training = []
-    texts_news = []
     min_training = 100000
     min_news = 100000
     max_training = 0
     max_news = 0
     accumulative = 0
-    texts_news = []
     labels = []
     processed_labels = []
 
-    news_2 = pd.read_csv("../text/development.csv")
-
-    texts_news.append(news_2['Text'])
+    news_2 = pd.read_csv("../corpus/IMDB_Dataset_SPANISH.csv")
+    texts_news = news_2['review_es']
 
     #WE KNOW THAT NONE OF THESE ARTICLES ARE COMPLAINTS
     for news in news_2:
             labels.append(0)
 
-    training = pd.read_csv("../text/training.txt")
+    training = pd.read_csv("../text/training.csv")
     texts_training.append(training['Text'])
 
     for text in texts_training:
@@ -62,7 +61,6 @@ def main():
         value = 0
         lemmatized = []
         stringed = ""
-
         text = clean_text(text)
         obj = nlp(text)
         tokens = [tk.orth_ for tk in obj if not tk.is_punct | tk.is_stop]
@@ -84,7 +82,7 @@ def main():
                 value+=1
                 repeated_words.append(freq_dict["WORD"][i])
 
-        if (value >= 0.1):
+        if (value/len(freq_dict) >= 0.1):
             processed_labels.append(1)
         else:
             processed_labels.append(0)
@@ -125,7 +123,7 @@ def main():
                 value += 1
                 repeated_words.append(freq_dict["WORD"][i])
 
-        if (value >= 0.1):
+        if (value/len(freq_dict) >= 0.1):
             processed_labels.append(1)
         else:
             processed_labels.append(0)
