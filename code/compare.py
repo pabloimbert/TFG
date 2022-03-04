@@ -30,7 +30,6 @@ def main():
     #os.chdir('dict')
     freq_dict = pd.read_csv("../dict/FREQUENCIES_DIC.csv")
     print(len(freq_dict))
-    texts_training = []
     min_training = 100000
     min_news = 100000
     max_training = 0
@@ -43,11 +42,11 @@ def main():
     texts_news = news_2['review_es']
 
     #WE KNOW THAT NONE OF THESE ARTICLES ARE COMPLAINTS
-    for news in news_2:
+    for news in texts_news:
             labels.append(0)
 
     training = pd.read_csv("../text/training.csv")
-    texts_training.append(training['Text'])
+    texts_training = training['Text']
 
     for text in texts_training:
         labels.append(1)
