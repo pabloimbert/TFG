@@ -1,34 +1,15 @@
-import datetime
 import re
 from django.conf import settings
-
 settings.configure()
-# TO CONVERT THE INFO TO A JSON
-import json
+
 # TO COLLECT THE TWEETS
 import tweepy
 import os
 from dotenv import load_dotenv , find_dotenv
-from pathlib import Path
-import ujson as ujson
-from tweepy import AppAuthHandler
 
 # TO FILTER THE EMOJIS FROM THE TEXT
 import emoji
-
-
-# FOR THE SENTIMENT ANALYSIS
-# from classifier import *
-from afinn import Afinn
-
-# from textblob import TextBlob
-import numpy as np
-import pandas as pd
-# import nltk
-# from nltk.stem import WordNetLemmatizer
 import ssl
-
-# from googletrans import Translator
 
 try:
     _create_unverified_https_context = ssl._create_unverified_context

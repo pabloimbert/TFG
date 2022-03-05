@@ -1,24 +1,9 @@
-import datetime
 import re
-import csv
-import stanza
-
-# TO FILTER THE EMOJIS FROM THE TEXT
 import emoji
-import string
-
 import pandas as pd
-
 import keyring as kr
-import instagrapi
-
 from instagrapi import Client
 import statistics
-from collections import Counter
-import spacy
-import nltk
-import nltk.data
-from nltk import SnowballStemmer
 # ----------------------------------------------------     FIXED VALUES     --------------------------------------------------------------
 
 USERNAME = 'trabajosruineros'

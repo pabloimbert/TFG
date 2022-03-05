@@ -1,25 +1,9 @@
-import datetime
-import re
-import csv
 import stanza
-#stanza.download('es')
 from django.conf import settings
-
 settings.configure()
-
-# TO FILTER THE EMOJIS FROM THE TEXT
-import emoji
-
-
-# FOR THE SENTIMENT ANALYSIS
-# from classifier import *
-#from afinn import Afinn
 from instagrapi import Client
 from collections import Counter
 import spacy
-import nltk
-import nltk.data
-from nltk import SnowballStemmer
 # ----------------------------------------------------     FIXED VALUES     --------------------------------------------------------------
 
 USERNAME = 'trabajosruineros'
@@ -66,24 +50,8 @@ class InstagramClient(object):
         freq = Counter(lemmatized).most_common()
         print(freq)
 
-        #PARA ALMACENARLO EN UN CSV
-        #with open('FREQUENCIES.csv', 'w') as f:
-         #   csv_f = csv.writer(f)
-         #   csv_f.writerow(['WORD', 'FREQUENCY'])
-          #  for tuple in freq:
-          #      csv_f.writerow(tuple)
-
-
-
-
 
 def main():
-    #api = TwitterClient()
-    #tweets = api.get_useful_tweets_Afinn(screen_name=SCREENNAME)
-    #dataset = 5
-    #for tweet in tweets:
-    #print(api.retreive_info_tweet(tweet, dataset))
-
     cli = InstagramClient()
     cli.getMedia(USERNAME)
 

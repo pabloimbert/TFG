@@ -1,6 +1,3 @@
-# Cargar en formato dataframe el diccionario
-# Cargar textos de prueba
-# Comparar porcentajes del diccionario en los textos
 import re
 import stanza
 
@@ -9,11 +6,7 @@ settings.configure()
 import pandas as pd
 import spacy
 import emoji
-import os
 from sklearn import metrics
-# FOR THE MEDIAN
-import statistics
-
 
 def clean_text(text):
 
@@ -29,11 +22,6 @@ def main():
 
     #os.chdir('dict')
     freq_dict = pd.read_csv("../dict/FREQUENCIES_DIC.csv")
-    min_training = 100000
-    min_news = 100000
-    max_training = 0
-    max_news = 0
-    accumulative = 0
     labels = []
     processed_labels = []
 
@@ -53,7 +41,6 @@ def main():
     nlp = spacy.load("es_core_news_sm")
     nlp_s = stanza.Pipeline(lang='es', processors='tokenize,mwt,pos,lemma')
 
-    accumulative = 0
 
     for text in texts_news:
         value = 0
@@ -85,15 +72,7 @@ def main():
         else:
             processed_labels.append(0)
 #############################################################
-        accumulative += value
-        if (value < min_news):
-            min_news = value
 
-        if (value > max_news):
-            max_news = value
-
-
-    avg_news = accumulative / len(texts_news)
 
     for text in texts_training:
         value = 0
@@ -125,17 +104,7 @@ def main():
             processed_labels.append(1)
         else:
             processed_labels.append(0)
-        accumulative += value
 
-        if (value < min_training):
-            min_training = value
-
-        if (value > max_training):
-            max_training = value
-
-
-
-    avg_training = accumulative/len(texts_training)
 
     cm_results = metrics.confusion_matrix(labels, processed_labels)
     print(cm_results)
@@ -145,16 +114,7 @@ def main():
     print(f'Precision: {round(metrics.precision_score(labels, processed_labels), 2)}')
     print(f'F1: {round(metrics.f1_score(labels, processed_labels), 2)}')
 
-    #print("------------------------------     TRAINING.TXT     ------------------------------")
-    #print(labels)
-    #print("MAX:", max_training, "MIN:", min_training, "AVG:", avg_training, "MEDIAN:", statistics.median(values_training))
-
-    #print("\n\n\n------------------------------     RANDOM_TWEETS.TXT     ------------------------------")
-    #print(processed_labels)
-    #print("MAX:", max_news, "MIN:", min_news, "AVG:", avg_news, "MEDIAN:", statistics.median(values_random))
-
 
 if __name__ == "__main__":
     # calling main function
     main()
-
