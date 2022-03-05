@@ -29,7 +29,6 @@ def main():
 
     #os.chdir('dict')
     freq_dict = pd.read_csv("../dict/FREQUENCIES_DIC.csv")
-    print(len(freq_dict))
     min_training = 100000
     min_news = 100000
     max_training = 0
@@ -81,7 +80,7 @@ def main():
                 value+=1
                 repeated_words.append(freq_dict["WORD"][i])
 
-        if (value/len(freq_dict) >= 0.1):
+        if (value/len(freq_dict) >= 0.04):
             processed_labels.append(1)
         else:
             processed_labels.append(0)
@@ -122,7 +121,7 @@ def main():
                 value += 1
                 repeated_words.append(freq_dict["WORD"][i])
 
-        if (value/len(freq_dict) >= 0.1):
+        if (value/len(freq_dict) >= 0.04):
             processed_labels.append(1)
         else:
             processed_labels.append(0)
