@@ -28,15 +28,21 @@ def main():
     news_2 = pd.read_csv("../corpus/IMDB_Dataset_SPANISH.csv")
     texts_news = news_2['review_es']
 
+    words_in_dic = []
+    texts = []
+
+
     #WE KNOW THAT NONE OF THESE ARTICLES ARE COMPLAINTS
     for news in texts_news:
-            labels.append(0)
+        labels.append(0)
+        texts.append(news)
 
     training = pd.read_csv("../text/training.csv")
     texts_training = training['Text']
 
     for text in texts_training:
         labels.append(1)
+        texts.append(text)
 
     nlp = spacy.load("es_core_news_sm")
     nlp_s = stanza.Pipeline(lang='es', processors='tokenize,mwt,pos,lemma')
@@ -61,11 +67,15 @@ def main():
             for word in sent.words:
                 lemmatized.append(word.lemma)
 #############################################################
+        aux = []
         repeated_words = []
         for i in range(len(freq_dict)):
             if freq_dict["WORD"][i] in lemmatized and freq_dict["WORD"][i] not in repeated_words:
                 value+=1
                 repeated_words.append(freq_dict["WORD"][i])
+                aux.append(freq_dict["WORD"][i])
+
+        words_in_dic.append(aux)
 
         if (value/len(freq_dict) >= 0.04):
             processed_labels.append(1)
@@ -95,15 +105,51 @@ def main():
                 lemmatized.append(word.lemma)
 
         repeated_words = []
+        aux = []
+
         for i in range(len(freq_dict)):
             if freq_dict["WORD"][i] in lemmatized and freq_dict["WORD"][i] not in repeated_words:
                 value += 1
                 repeated_words.append(freq_dict["WORD"][i])
+                aux.append(freq_dict["WORD"][i])
+        words_in_dic.append(aux)
 
         if (value/len(freq_dict) >= 0.04):
             processed_labels.append(1)
         else:
             processed_labels.append(0)
+
+
+
+
+
+
+
+    print("----------------------- TRUE POSITIVES -----------------------")
+    for i in range(len(labels)):
+        if processed_labels[i] == labels[i] and labels[i] == 1:
+            print(texts[i], "\n")
+            print(words_in_dic[i], "\n")
+
+    print("\n\n----------------------- TRUE NEGATIVES -----------------------")
+    for i in range(len(labels)):
+        if processed_labels[i] == labels[i] and labels[i] == 0:
+            print(texts[i], "\n")
+            print(words_in_dic[i], "\n")
+
+    print("\n\n----------------------- FALSE POSITIVES -----------------------")
+    for i in range(len(labels)):
+        if processed_labels[i] != labels[i] and labels[i] == 0:
+            print(texts[i], "\n")
+            print(words_in_dic[i], "\n")
+
+    print("\n\n----------------------- FALSE NEGATIVES -----------------------")
+    for i in range(len(labels)):
+        if processed_labels[i] != labels[i] and labels[i] == 1:
+            print(texts[i], "\n")
+            print(words_in_dic[i], "\n")
+
+
 
 
     cm_results = metrics.confusion_matrix(labels, processed_labels)
@@ -113,6 +159,9 @@ def main():
     print(f'ROC-AUC: {round(metrics.roc_auc_score(labels, processed_labels), 2)}')
     print(f'Precision: {round(metrics.precision_score(labels, processed_labels), 2)}')
     print(f'F1: {round(metrics.f1_score(labels, processed_labels), 2)}')
+
+    #for label in processed_labels:
+
 
 
 if __name__ == "__main__":
