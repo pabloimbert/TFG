@@ -25,14 +25,20 @@ MOST_RECENT_ID = 0
 class SimpleListener(tweepy.StreamListener):
     def on_status(self, status):
         # code to run each time the stream receives a status
+
+        # AQUI METERIAMOS EL STATUS EN MONGO
         print(status.text)
 
     def on_direct_message(self, status):
         # code to run each time the stream receives a direct message
+
+        # AQUI METERIAMOS EL STATUS EN MONGO
         print(status.text)
 
     def on_data(self, status):
         # code to run each time you receive some data (direct message, delete, profile update, status,...)
+
+        # AQUI METERIAMOS EL STATUS EN MONGO
         print(status.text)
 
     def on_error(self, staus_code):
@@ -69,7 +75,7 @@ class TwitterClient(object):
 
 def main():
     freq_dict = pd.read_csv("../dict/FREQUENCIES_DIC.csv")
-    
+
     api = TwitterClient()
     tweepy_listener = SimpleListener()
     tweepy_stream = tweepy.Stream(auth=api.auth, listener=tweepy_listener())
