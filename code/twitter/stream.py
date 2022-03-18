@@ -2,10 +2,14 @@ import re
 import tweepy
 import emoji
 import os
+
+from bson import ObjectId
 from dotenv import load_dotenv , find_dotenv
 from pymongo import MongoClient
-import pandas as pd
 import ssl
+import pandas as pd
+import spacy
+import stanza
 
 
 try:
@@ -27,13 +31,16 @@ class SimpleListener(tweepy.Stream):
     client = MongoClient()
     db = client['tweet_stream']
     collection = db['test']
-
-
-
+    limit = 6
+    count =0
 
     def on_status(self, status):
         # code to run each time the stream receives a status
-        l_hashtags=[]
+
+        if(self.count >=self.limit):
+            print('Disconnect')
+            self.disconnect()
+
         tweet_id = status.id_str
 
         if hasattr(status, "retweeted_status"):  # Check if Retweet
@@ -51,7 +58,7 @@ class SimpleListener(tweepy.Stream):
                 text = status.text
                 l_hashtags = status.entities['hashtags']
 
-
+        text.replace("\n", " ")
         user = status.user.screen_name
         link = "https://twitter.com/" + user + "/status/" + tweet_id
 
@@ -65,7 +72,8 @@ class SimpleListener(tweepy.Stream):
          'retweets': n_retweets, 'replies': n_replies, 'hashtags': l_hashtags}
 
         self.collection.insert_one(post)
-        print("on_status")
+        ++self.count
+
 
     def on_error(self, staus_code):
         # code to run each time an error is received
@@ -73,6 +81,49 @@ class SimpleListener(tweepy.Stream):
             return False
         else:
             return True
+
+
+def clean_text(text):
+    clean_text = re.sub(emoji.get_emoji_regexp(), " ", text)
+    clean_text = re.sub("(@.+)|(#.+)•", "", clean_text)
+    clean_text = re.sub(r"https\S+", "", clean_text)
+    clean_text = re.sub(r'[^\w]', ' ', clean_text)
+    clean_text = clean_text.lower()
+    return " ".join(clean_text.split())
+
+def is_a_complain(text, freq_dict):
+    value = 0
+    repeated_words = []
+
+    for i in range(len(freq_dict)):
+        if freq_dict["WORD"][i] in text and freq_dict["WORD"][i] not in repeated_words:
+            value += 1
+            repeated_words.append(freq_dict["WORD"][i])
+
+    return ((value / len(freq_dict)) >= 0.04)
+
+def text_analysis(post, nlp, nlp_s, freq_dict,f):
+    lemmatized = []
+    stringed = ""
+    text = clean_text(post.text)
+    obj = nlp(text)
+    tokens = [tk.orth_ for tk in obj if not tk.is_punct | tk.is_stop]
+    normalized = [tk.lower() for tk in tokens if len(tk) > 3 and tk.isalpha()]
+
+    for n in normalized:
+        stringed = stringed + n + " "
+
+    doc = nlp_s(stringed)
+
+    for sent in doc.sentences:
+        for word in sent.words:
+            lemmatized.append(word.lemma)
+
+    if(is_a_complain(lemmatized, freq_dict)):
+        f.write(post.text)
+
+
+
 
 def main():
 
@@ -83,6 +134,23 @@ def main():
                                                   freq_dict["WORD"][6],freq_dict["WORD"][7],freq_dict["WORD"][8],freq_dict["WORD"][9],freq_dict["WORD"][10],freq_dict["WORD"][11],
                                                   freq_dict["WORD"][12],freq_dict["WORD"][13],freq_dict["WORD"][14],freq_dict["WORD"][15],freq_dict["WORD"][16],freq_dict["WORD"][17],
                                                   freq_dict["WORD"][18],freq_dict["WORD"][19]])
+
+    f = open("../../json/examples.json", 'a')
+    print("llega")
+    f.write('[')
+    client = MongoClient()
+    db = client['tweet_stream']
+    collection = db['test']
+
+    nlp = spacy.load("es_core_news_sm")
+    nlp_s = stanza.Pipeline(lang='es', processors='tokenize,mwt,pos,lemma')
+
+    for post in collection.find():
+        text_analysis(post, nlp, nlp_s, freq_dict,f)
+        collection.deleteOne({"_id": post._id})
+
+    f.write(']')
+
 
 
 if __name__ == "__main__":
