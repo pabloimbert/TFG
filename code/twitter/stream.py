@@ -2,6 +2,7 @@ import re
 import tweepy
 import emoji
 import os
+import time
 
 #from bson import ObjectId
 from dotenv import load_dotenv , find_dotenv
@@ -31,15 +32,8 @@ class SimpleListener(tweepy.Stream):
     client = MongoClient()
     db = client['tweet_stream']
     collection = db['test']
-    limit = 6
-    count =0
 
     def on_status(self, status):
-        # code to run each time the stream receives a status
-
-        if(self.count >=self.limit):
-            print('Disconnect')
-            self.disconnect()
 
         tweet_id = status.id_str
 
@@ -72,7 +66,6 @@ class SimpleListener(tweepy.Stream):
          'retweets': n_retweets, 'replies': n_replies, 'hashtags': l_hashtags}
 
         self.collection.insert_one(post)
-        self.count+=1
 
 
     def on_error(self, staus_code):
@@ -129,15 +122,13 @@ def main():
 
     freq_dict = pd.read_csv("../../dict/FREQUENCIES_DIC.csv")
     load_dotenv(find_dotenv("env/TwitterTokens.env"))
-    tweepy_stream = SimpleListener(os.getenv('API_KEY'), os.getenv('API_KEY_SECRET'), os.getenv('ACCESS_TOKEN'), os.getenv('ACCESS_TOKEN_SECRET'),daemon = True)
-    tweepy_stream.filter(languages=['es'], track=[freq_dict["WORD"][0],freq_dict["WORD"][1],freq_dict["WORD"][2],freq_dict["WORD"][3],freq_dict["WORD"][4],freq_dict["WORD"][5],
+    tweepy_stream = SimpleListener(os.getenv('API_KEY'), os.getenv('API_KEY_SECRET'), os.getenv('ACCESS_TOKEN'), os.getenv('ACCESS_TOKEN_SECRET'), daemon=True)
+    tweepy_stream.filter(languages=['es'], threaded=True, track=[freq_dict["WORD"][0],freq_dict["WORD"][1],freq_dict["WORD"][2],freq_dict["WORD"][3],freq_dict["WORD"][4],freq_dict["WORD"][5],
                                                   freq_dict["WORD"][6],freq_dict["WORD"][7],freq_dict["WORD"][8],freq_dict["WORD"][9],freq_dict["WORD"][10],freq_dict["WORD"][11],
                                                   freq_dict["WORD"][12],freq_dict["WORD"][13],freq_dict["WORD"][14],freq_dict["WORD"][15],freq_dict["WORD"][16],freq_dict["WORD"][17],
                                                   freq_dict["WORD"][18],freq_dict["WORD"][19]])
 
     f = open("../../json/examples.json", 'a')
-    print("llega")
-    f.write('[')
     client = MongoClient()
     db = client['tweet_stream']
     collection = db['test']
@@ -145,11 +136,11 @@ def main():
     nlp = spacy.load("es_core_news_sm")
     nlp_s = stanza.Pipeline(lang='es', processors='tokenize,mwt,pos,lemma')
 
-    for post in collection.find():
-        text_analysis(post, nlp, nlp_s, freq_dict,f)
-        collection.delete_one({"_id": post['_id']})
-
-    f.write(']')
+    while(1):
+        time.sleep(10)
+        for post in collection.find():
+            text_analysis(post, nlp, nlp_s, freq_dict,f)
+            collection.delete_one({"_id": post['_id']})
 
 
 
