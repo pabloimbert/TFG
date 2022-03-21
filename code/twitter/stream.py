@@ -3,7 +3,7 @@ import tweepy
 import emoji
 import os
 
-from bson import ObjectId
+#from bson import ObjectId
 from dotenv import load_dotenv , find_dotenv
 from pymongo import MongoClient
 import ssl
@@ -72,7 +72,7 @@ class SimpleListener(tweepy.Stream):
          'retweets': n_retweets, 'replies': n_replies, 'hashtags': l_hashtags}
 
         self.collection.insert_one(post)
-        ++self.count
+        self.count+=1
 
 
     def on_error(self, staus_code):
@@ -105,7 +105,7 @@ def is_a_complain(text, freq_dict):
 def text_analysis(post, nlp, nlp_s, freq_dict,f):
     lemmatized = []
     stringed = ""
-    text = clean_text(post.text)
+    text = clean_text(post['text'])
     obj = nlp(text)
     tokens = [tk.orth_ for tk in obj if not tk.is_punct | tk.is_stop]
     normalized = [tk.lower() for tk in tokens if len(tk) > 3 and tk.isalpha()]
@@ -120,7 +120,7 @@ def text_analysis(post, nlp, nlp_s, freq_dict,f):
             lemmatized.append(word.lemma)
 
     if(is_a_complain(lemmatized, freq_dict)):
-        f.write(post.text)
+        f.write(post['text'])
 
 
 
@@ -147,7 +147,7 @@ def main():
 
     for post in collection.find():
         text_analysis(post, nlp, nlp_s, freq_dict,f)
-        collection.deleteOne({"_id": post._id})
+        collection.delete_one({"_id": post['_id']})
 
     f.write(']')
 
