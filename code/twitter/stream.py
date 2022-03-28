@@ -37,14 +37,16 @@ class SimpleListener(tweepy.Stream):
 
         tweet_id = status.id_str
 
-        if hasattr(status, "retweeted_status"):  # Check if Retweet
-            try:
-                text = status.retweeted_status.extended_tweet['full_text']
-                l_hashtags = status.retweeted_status.extended_tweet['entities']['hashtags']
-            except AttributeError:
-                text = status.retweeted_status.text
-                l_hashtags = status.retweeted_status.entities['hashtags']
-        else:
+
+        #if hasattr(status, "retweeted_status"):  # Check if Retweet
+        #    try:
+        #        text = status.retweeted_status.extended_tweet['full_text']
+        #        l_hashtags = status.retweeted_status.extended_tweet['entities']['hashtags']
+        #    except AttributeError:
+        #        text = status.retweeted_status.text
+        #         l_hashtags = status.retweeted_status.entities['hashtags']
+        #else:
+        if not hasattr(status, "retweeted_status"):  # Check if not Retweet
             try:
                 text = status.extended_tweet["full_text"]
                 l_hashtags = status.extended_tweet['entities']['hashtags']
@@ -52,20 +54,20 @@ class SimpleListener(tweepy.Stream):
                 text = status.text
                 l_hashtags = status.entities['hashtags']
 
-        text.replace("\n", " ")
-        user = status.user.screen_name
-        link = "https://twitter.com/" + user + "/status/" + tweet_id
+            text.replace("\n", " ")
+            user = status.user.screen_name
+            link = "https://twitter.com/" + user + "/status/" + tweet_id
 
-        date = status.created_at
-        n_likes = status.favorite_count
-        n_retweets = status.retweet_count
-        n_replies = status.reply_count
+            date = status.created_at
+            n_likes = status.favorite_count
+            n_retweets = status.retweet_count
+            n_replies = status.reply_count
 
 
-        post = {'link': link, 'id': tweet_id, 'text': text, 'user': user, 'date': date, 'likes': n_likes,
-         'retweets': n_retweets, 'replies': n_replies, 'hashtags': l_hashtags}
+            post = {'link': link, 'id': tweet_id, 'text': text, 'user': user, 'date': date, 'likes': n_likes,
+            'retweets': n_retweets, 'replies': n_replies, 'hashtags': l_hashtags}
 
-        self.collection.insert_one(post)
+            self.collection.insert_one(post)
 
 
     def on_error(self, staus_code):
@@ -93,7 +95,7 @@ def is_a_complain(text, freq_dict):
             value += 1
             repeated_words.append(freq_dict["WORD"][i])
 
-    return ((value / len(freq_dict)) >= 0.04)
+    return ((value / len(freq_dict)) >= 0.05)
 
 def text_analysis(post, nlp, nlp_s, freq_dict,f):
     lemmatized = []
@@ -102,6 +104,7 @@ def text_analysis(post, nlp, nlp_s, freq_dict,f):
     obj = nlp(text)
     tokens = [tk.orth_ for tk in obj if not tk.is_punct | tk.is_stop]
     normalized = [tk.lower() for tk in tokens if len(tk) > 3 and tk.isalpha()]
+    aux_json = ""
 
     for n in normalized:
         stringed = stringed + n + " "
@@ -113,7 +116,15 @@ def text_analysis(post, nlp, nlp_s, freq_dict,f):
             lemmatized.append(word.lemma)
 
     if(is_a_complain(lemmatized, freq_dict)):
-        f.write(post['text'])
+        aux_json += "{\'link\':" + post['link'] + ", \'id\':" + post['id'] + ", \'text\':" + text + ", \'user\':" + post['user'] + ", \'date\':"\
+                   + str(int(post['date'].timestamp())) +", \'likes\':" + str(post['likes']) + ", \'retweets\':" + str(post['retweets']) + ", \'replies\':" + str(post['replies']) + ", \'hashtags\':"
+        aux_hashtags = "["
+        for h in post['hashtags']:
+            aux_hashtags+= (h['text'] + ", ")
+        aux_hashtags += "]"
+
+        aux_json += (aux_hashtags + "}, ")
+        f.write(aux_json)
 
 
 
@@ -129,6 +140,7 @@ def main():
                                                   freq_dict["WORD"][18],freq_dict["WORD"][19]])
 
     f = open("../../json/examples.json", 'a')
+    f.write("[")
     client = MongoClient()
     db = client['tweet_stream']
     collection = db['test']
@@ -137,7 +149,6 @@ def main():
     nlp_s = stanza.Pipeline(lang='es', processors='tokenize,mwt,pos,lemma')
 
     while(1):
-        time.sleep(10)
         for post in collection.find():
             text_analysis(post, nlp, nlp_s, freq_dict,f)
             collection.delete_one({"_id": post['_id']})
