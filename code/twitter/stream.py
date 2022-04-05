@@ -122,7 +122,9 @@ def text_analysis(post, nlp, nlp_s, freq_dict,f):
         aux_hashtags = "["
         for h in post['hashtags']:
             aux_hashtags+= ("\"" + h['text'] + "\", ")
-        aux_hashtags = aux_hashtags[:-2]
+
+        if (len(aux_hashtags) > 1):
+            aux_hashtags = aux_hashtags[:-2]
         aux_hashtags += "]"
 
         aux_json += (aux_hashtags + "}, ")
