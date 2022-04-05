@@ -68,6 +68,7 @@ class SimpleListener(tweepy.Stream):
             'retweets': n_retweets, 'replies': n_replies, 'hashtags': l_hashtags}
 
             self.collection.insert_one(post)
+            print("on_status")
 
 
     def on_error(self, staus_code):
@@ -140,7 +141,7 @@ def main():
                                                   freq_dict["WORD"][12],freq_dict["WORD"][13],freq_dict["WORD"][14],freq_dict["WORD"][15],freq_dict["WORD"][16],freq_dict["WORD"][17],
                                                   freq_dict["WORD"][18],freq_dict["WORD"][19]])
 
-    f = open("../../json/examples.json", 'a')
+    f = open("../../json/examples_second.json", 'a')
     f.write("[")
     client = MongoClient()
     db = client['tweet_stream']
