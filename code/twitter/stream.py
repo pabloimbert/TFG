@@ -135,13 +135,15 @@ def text_analysis(post, nlp, nlp_s, freq_dict,f):
 
 def main():
 
+    query = pd.read_csv("../../dict/query_dic.csv")
     freq_dict = pd.read_csv("../../dict/FREQUENCIES_DIC.csv")
     load_dotenv(find_dotenv("env/TwitterTokens.env"))
     tweepy_stream = SimpleListener(os.getenv('API_KEY'), os.getenv('API_KEY_SECRET'), os.getenv('ACCESS_TOKEN'), os.getenv('ACCESS_TOKEN_SECRET'), daemon=True)
-    tweepy_stream.filter(languages=['es'], threaded=True, track=[freq_dict["WORD"][0],freq_dict["WORD"][1],freq_dict["WORD"][2],freq_dict["WORD"][3],freq_dict["WORD"][4],freq_dict["WORD"][5],
-                                                  freq_dict["WORD"][6],freq_dict["WORD"][7],freq_dict["WORD"][8],freq_dict["WORD"][9],freq_dict["WORD"][10],freq_dict["WORD"][11],
-                                                  freq_dict["WORD"][12],freq_dict["WORD"][13],freq_dict["WORD"][14],freq_dict["WORD"][15],freq_dict["WORD"][16],freq_dict["WORD"][17],
-                                                  freq_dict["WORD"][18],freq_dict["WORD"][19]])
+    tweepy_stream.filter(languages=['es'], threaded=True, track=[query["WORD"][0],query["WORD"][1],query["WORD"][2],query["WORD"][3],query["WORD"][4],query["WORD"][5],
+                                                  query["WORD"][6],query["WORD"][7],query["WORD"][8],query["WORD"][9],query["WORD"][10],query["WORD"][11],
+                                                  query["WORD"][12],query["WORD"][13],query["WORD"][14],query["WORD"][15],query["WORD"][16],query["WORD"][17],
+                                                  query["WORD"][18],query["WORD"][19],query["WORD"][20],query["WORD"][21],query["WORD"][22],query["WORD"][23],
+                                                  query["WORD"][24],query["WORD"][25]])
 
     f = open("../../json/examples_second.json", 'a')
     f.write("[")
@@ -154,7 +156,7 @@ def main():
 
     while(1):
         for post in collection.find():
-            text_analysis(post, nlp, nlp_s, freq_dict,f)
+            text_analysis(post, nlp, nlp_s, freq_dict, f)
             collection.delete_one({"_id": post['_id']})
 
 
