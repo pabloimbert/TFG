@@ -112,6 +112,7 @@ def text_analysis(post, nlp, nlp_s, freq_dict,f):
 
     doc = nlp_s(stringed)
 
+
     for sent in doc.sentences:
         for word in sent.words:
             lemmatized.append(word.lemma)
@@ -127,8 +128,9 @@ def text_analysis(post, nlp, nlp_s, freq_dict,f):
             aux_hashtags = aux_hashtags[:-2]
         aux_hashtags += "]"
 
-        aux_json += (aux_hashtags + "}, ")
+        aux_json += (aux_hashtags + "}, \n")
         f.write(aux_json)
+
 
 
 
@@ -145,19 +147,63 @@ def main():
                                                   query["WORD"][18],query["WORD"][19],query["WORD"][20],query["WORD"][21],query["WORD"][22],query["WORD"][23],
                                                   query["WORD"][24]])
 
-    f = open("../../json/examples_second.json", 'a')
-    f.write("[")
+    f = open("../../json/examples.json", 'a')
+    one_char = f.read(1)
+
+    if not one_char:
+        f.write("[")
+
     client = MongoClient()
     db = client['tweet_stream']
     collection = db['test']
 
     nlp = spacy.load("es_core_news_sm")
     nlp_s = stanza.Pipeline(lang='es', processors='tokenize,mwt,pos,lemma')
+    index = 0
 
-    while(1):
-        for post in collection.find():
-            text_analysis(post, nlp, nlp_s, freq_dict, f)
-            collection.delete_one({"_id": post['_id']})
+    try:
+        while (1):
+            for post in collection.find():
+                # Enviar a la api
+                if(index > 20):
+                    f.write("]")
+                    f.seek(0, os.SEEK_SET)
+                    f.truncate()
+                    f.write("[")
+
+                text_analysis(post, nlp, nlp_s, freq_dict, f)
+                collection.delete_one({"_id": post['_id']})
+                index +=1
+
+
+
+    finally:
+
+        erase_lastjson(f)
+
+        f.write("]")
+        #Enviar a la api
+
+        f.seek(0,os.SEEK_SET)
+        f.truncate()
+
+        f.close()
+
+def erase_lastjson(f):
+    n_c = 0
+    f.seek(0, os.SEEK_END)
+    file_size = f.tell()
+    while (file_size - n_c) > 0:
+        f.seek(file_size - n_c)
+        aux = f.read(n_c)
+        if (aux == '}'):
+            break
+        n_c += 1
+
+    f.seek(-n_c+1, os.SEEK_END)
+    f.truncate()
+
+
 
 
 

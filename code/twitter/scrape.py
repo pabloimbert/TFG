@@ -39,7 +39,7 @@ def is_a_complain(text, freq_dict):
             value += 1
             repeated_words.append(freq_dict["WORD"][i])
 
-    return ((value / len(freq_dict)) >= 0.05)
+    return ((value / len(freq_dict)) >= 0.0534)
 
 def text_analysis(post, nlp, nlp_s, freq_dict,f):
     lemmatized = []
