@@ -96,7 +96,7 @@ def is_a_complain(text, freq_dict):
             value += 1
             repeated_words.append(freq_dict["WORD"][i])
 
-    return ((value / len(freq_dict)) >= 0.05)
+    return ((value / len(freq_dict)) >= 0.0534)
 
 def text_analysis(post, nlp, nlp_s, freq_dict,f):
     lemmatized = []
@@ -143,7 +143,7 @@ def main():
                                                   query["WORD"][6],query["WORD"][7],query["WORD"][8],query["WORD"][9],query["WORD"][10],query["WORD"][11],
                                                   query["WORD"][12],query["WORD"][13],query["WORD"][14],query["WORD"][15],query["WORD"][16],query["WORD"][17],
                                                   query["WORD"][18],query["WORD"][19],query["WORD"][20],query["WORD"][21],query["WORD"][22],query["WORD"][23],
-                                                  query["WORD"][24],query["WORD"][25]])
+                                                  query["WORD"][24]])
 
     f = open("../../json/examples_second.json", 'a')
     f.write("[")

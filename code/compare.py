@@ -77,7 +77,7 @@ def main():
 
         words_in_dic.append(aux)
 
-        if (value/len(freq_dict) >= 0.04):
+        if (value/len(freq_dict) >= 0.0533):
             processed_labels.append(1)
         else:
             processed_labels.append(0)
@@ -114,7 +114,7 @@ def main():
                 aux.append(freq_dict["WORD"][i])
         words_in_dic.append(aux)
 
-        if (value/len(freq_dict) >= 0.04):
+        if (value/len(freq_dict) >= 0.0533):
             processed_labels.append(1)
         else:
             processed_labels.append(0)
