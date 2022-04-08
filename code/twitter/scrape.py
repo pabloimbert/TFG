@@ -132,6 +132,10 @@ def main():
         collection.insert_one(post)
         text_analysis(post, nlp, nlp_s, freq_dict, f)
         collection.delete_one({"_id": post['_id']})
+        
+    f.seek(-2, os.SEEK_END)
+    f.truncate()
+    f.write("]")
 
 
 
