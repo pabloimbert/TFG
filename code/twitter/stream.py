@@ -147,7 +147,7 @@ def main():
                                                   query["WORD"][18],query["WORD"][19],query["WORD"][20],query["WORD"][21],query["WORD"][22],query["WORD"][23],
                                                   query["WORD"][24]])
 
-    f = open("../../json/examples.json", 'a')
+    f = open("../../json/examples.json", 'a+')
     one_char = f.read(1)
 
     if not one_char:
@@ -167,8 +167,8 @@ def main():
                 # Enviar a la api
                 if(index > 20):
                     f.write("]")
-                    f.seek(0, os.SEEK_SET)
-                    f.truncate()
+                    #f.seek(0, os.SEEK_SET)
+                    #f.truncate()
                     f.write("[")
 
                 text_analysis(post, nlp, nlp_s, freq_dict, f)
@@ -182,10 +182,11 @@ def main():
         erase_lastjson(f)
 
         f.write("]")
+
         #Enviar a la api
 
-        f.seek(0,os.SEEK_SET)
-        f.truncate()
+        #f.seek(0,os.SEEK_SET)
+        #f.truncate()
 
         f.close()
 
