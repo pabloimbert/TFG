@@ -77,7 +77,7 @@ def text_analysis(post, nlp, nlp_s, freq_dict,f):
 
 
 def main():
-
+    query = pd.read_csv("../../dict/query_dic.csv")
     freq_dict = pd.read_csv("../../dict/FREQUENCIES_DIC.csv")
     load_dotenv(find_dotenv("env/TwitterTokens.env"))
 
@@ -96,10 +96,11 @@ def main():
 
 
     # Using TwitterSearchScraper to scrape data and append tweets to list
-    for i, tweet in enumerate(sntwitter.TwitterSearchScraper(freq_dict["WORD"][0] + " OR " + freq_dict["WORD"][1] + " OR " + freq_dict["WORD"][2] + " OR " + freq_dict["WORD"][3] + " OR " + freq_dict["WORD"][4] + " OR " +
-     freq_dict["WORD"][5] + " OR " + freq_dict["WORD"][6] + " OR " + freq_dict["WORD"][7] + " OR " + freq_dict["WORD"][8] + " OR " + freq_dict["WORD"][9] + " OR " +\
-     freq_dict["WORD"][10] + " OR " + freq_dict["WORD"][11] + " OR " + freq_dict["WORD"][12] + " OR " + freq_dict["WORD"][13] + " OR " + freq_dict["WORD"][14] + " OR " +\
-     freq_dict["WORD"][15] + " OR " + freq_dict["WORD"][16] + " OR " + freq_dict["WORD"][17] + " OR " + freq_dict["WORD"][18] + " OR " + freq_dict["WORD"][19] + " lang:es -is:retweet").get_items()):
+    for i, tweet in enumerate(sntwitter.TwitterSearchScraper(query["WORD"][0] + " OR " + query["WORD"][0] + " OR " + query["WORD"][0] + " OR " + query["WORD"][3] + " OR " + query["WORD"][4] + " OR " +
+     query["WORD"][5] + " OR " + query["WORD"][6] + " OR " + query["WORD"][7] + " OR " + query["WORD"][8] + " OR " + query["WORD"][9] + " OR " +\
+     query["WORD"][10] + " OR " + query["WORD"][11] + " OR " + query["WORD"][12] + " OR " + query["WORD"][13] + " OR " + query["WORD"][14] + " OR " +\
+     query["WORD"][15] + " OR " + query["WORD"][16] + " OR " + query["WORD"][17] + " OR " + query["WORD"][18] + " OR " + query["WORD"][19] + " OR " +
+     query["WORD"][20] + " OR " + query["WORD"][21] + " OR " + query["WORD"][22] + " OR " + query["WORD"][23] + " OR " + query["WORD"][24] + " lang:es -is:retweet").get_items()):
         tweet_id = str(tweet.id)
 
         # if hasattr(status, "retweeted_status"):  # Check if Retweet
