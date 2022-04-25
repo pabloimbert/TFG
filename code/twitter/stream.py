@@ -118,7 +118,7 @@ def text_analysis(post, nlp, nlp_s, freq_dict,f):
             lemmatized.append(word.lemma)
 
     if(is_a_complain(lemmatized, freq_dict)):
-        aux_json += "{\"link\":\"" + post['link'] + "\", \"id\":" + post['id'] + ", \"text\":\"" + text + "\", \"user\":\"" + post['user'] + "\", \"date\":"\
+        aux_json += "{\"link\":\"" + post['link'] + "\", \"id\":\"" + post['id'] + "\", \"text\":\"" + post['text'] + "\", \"user\":\"" + post['user'] + "\", \"date\":"\
                    + str(int(post['date'].timestamp())) +", \"likes\":" + str(post['likes']) + ", \"retweets\":" + str(post['retweets']) + ", \"replies\":" + str(post['replies']) + ", \"hashtags\":"
         aux_hashtags = "["
         for h in post['hashtags']:

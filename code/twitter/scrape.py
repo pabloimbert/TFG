@@ -60,11 +60,11 @@ def text_analysis(post, nlp, nlp_s, freq_dict,f):
             lemmatized.append(word.lemma)
 
     if(is_a_complain(lemmatized, freq_dict)):
-        aux_json += "{\"link\":\"" + post['link'] + "\", \"id\":" + post['id'] + ", \"text\":\"" + text + "\", \"user\":\"" + post['user'] + "\", \"date\":"\
+        aux_json += "{\"link\":\"" + post['link'] + "\", \"id\":" + post['id'] + ", \"text\":\"" + post['text'] + "\", \"user\":\"" + post['user'] + "\", \"date\":"\
                    + str(int(post['date'].timestamp())) +", \"likes\":" + str(post['likes']) + ", \"retweets\":" + str(post['retweets']) + ", \"replies\":" + str(post['replies']) + ", \"hashtags\":"
         aux_hashtags = "["
         for h in post['hashtags']:
-            aux_hashtags+= ("\"" + h + "\", ")
+            aux_hashtags += ("\"" + h + "\", ")
 
         if (len(aux_hashtags) > 1):
             aux_hashtags = aux_hashtags[:-2]
@@ -132,14 +132,26 @@ def main():
         collection.insert_one(post)
         text_analysis(post, nlp, nlp_s, freq_dict, f)
         collection.delete_one({"_id": post['_id']})
-        
+
     f.seek(-2, os.SEEK_END)
     f.truncate()
     f.write("]")
 
 
+    def reverse_readline(f):
 
 
+        n_c = 1
+        f.seek(0, os.SEEK_END)
+        file_size = remaining_size = f.tell()
+        while (file_size - n_c) > 0:
+            f.seek(file_size - n_c)
+            aux = f.read(n_c)
+            if (aux == '}'):
+                break
+            n_c+=1
+        f.seek (-n_c, os.SEEK_END)
+        f.truncate()
 
 
 if __name__ == "__main__":
