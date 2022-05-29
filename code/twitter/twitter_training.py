@@ -1,4 +1,6 @@
 import re
+
+from classifier import SentimentClassifier
 from django.conf import settings
 settings.configure()
 
@@ -18,19 +20,10 @@ except AttributeError:
 else:
     ssl._create_default_https_context = _create_unverified_https_context
 
-# ----------------------------------------------------     FIXED VALUES     --------------------------------------------------------------
-
-SCREENNAME = "PabloImbert"
-MOST_RECENT_ID = 0
-
 
 class TwitterClient(object):
 
     def __init__(self):
-        # To set your environment variables in your terminal run the following line:
-        # export 'BEARER_TOKEN'='<your_bearer_token>'
-
-        # En este caso no tengo access_token y access_key sino bearer_token, pues al estar usando una cuenta para academic research solo tengo OAuth 2.0 en vez de OAuth 1.0
 
         load_dotenv(find_dotenv("../../env/TwitterTokens.env"))
 
@@ -38,28 +31,26 @@ class TwitterClient(object):
         consumer_secret = os.getenv('API_KEY_SECRET')
 
         try:
-            # creamos el objeto AppAuthHandler
+            # We create the object AppAuthHandler
             self.auth = tweepy.AppAuthHandler(consumer_key, consumer_secret)
 
-            # Creamos el objeto de API de tweepy para acceder a los tweets
+            # Then create an API object so we can access all tweets from Twitter
             self.api = tweepy.API(self.auth)
 
         except:
-            print("ERROR: NO SE HA PODIDO AUTENTICAR")
+            print("ERROR: UNABLE TO AUTHENTICATE")
 
-
-    def get_all_tweets_from_user(self):
-            # inicializamos una lista que contendra todos los tweets
+    def get_all_tweets_from_query(self):
             alltweets = []
-
-            # primero buscamos los 200 primeros (tam max del count)
-            new_tweets = self.api.search_tweets(q="-filter:media -filter:retweets -filter:quote -filter:replies", count=1, lang="es")
+            # We get all tweets that do not have any media, that are not retweets, quoted tweets or replies and that are in spanish
+            new_tweets = self.api.search_tweets(q="-filter:media -filter:retweets -filter:quote -filter:replies", lang="es")
 
             # guardamos estos tweets en nuestro array de todos los tweets
             alltweets.extend(new_tweets)
 
             return alltweets
 
+    # Method to clean the text for analyzing it. It strips it from emojis, symbols, links, hashtags and mentions, it also normalizes it.
     def clean_text(self, text):
 
         clean_text = re.sub(emoji.get_emoji_regexp(), " ", text)
@@ -68,13 +59,14 @@ class TwitterClient(object):
 
         return " ".join(clean_text.split())
 
+    # Method that calls get_all_tweets_from_query and for each tweet we keep those that are not empty and that have a negative sentiment analysis.
     def get_useful_tweets(self):
-        tweets = self.get_all_tweets_from_user()
+        tweets = self.get_all_tweets_from_query()
         meaningful_tweets = []
-        # sentiment_classifier = SentimentClassifier()
+        sentiment_classifier = SentimentClassifier()
 
         for tweet in tweets:
-            if len(tweet.text) > 0:  # and sentiment_classifier.predict(tweet.text) <= 0.5:
+            if len(tweet.text) > 0 and sentiment_classifier.predict(tweet.text) <= 0.5:
                 status = self.api.get_status(tweet.id, tweet_mode="extended")
                 text = self.clean_text(status.full_text)
                 link = "https://twitter.com/" + tweet.user.screen_name + "/status/" + str(tweet.id)
@@ -83,7 +75,8 @@ class TwitterClient(object):
 
         return meaningful_tweets
 
-
+# We create the twitter Client to connect with the api and save random tweets so we can later test the algorithm built for instagram
+# with tweets instead of posts
 def main():
     api = TwitterClient()
     tweets = api.get_useful_tweets()

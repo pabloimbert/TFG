@@ -30,6 +30,13 @@ def clean_text(text):
     clean_text = clean_text.lower()
     return " ".join(clean_text.split())
 
+def clean_text_final_format(text):
+    c_t = re.sub(r'\n', ' ', text)
+    c_t = re.sub(r'"', '"', c_t)
+
+    return " ".join(c_t.split())
+
+
 def is_a_complain(text, freq_dict):
     value = 0
     repeated_words = []
@@ -41,7 +48,7 @@ def is_a_complain(text, freq_dict):
 
     return ((value / len(freq_dict)) >= 0.0534)
 
-def text_analysis(post, nlp, nlp_s, freq_dict,f):
+def text_analysis(post, nlp, nlp_s, freq_dict,f, f_n):
     lemmatized = []
     stringed = ""
     text = clean_text(post['text'])
@@ -60,8 +67,12 @@ def text_analysis(post, nlp, nlp_s, freq_dict,f):
             lemmatized.append(word.lemma)
 
     if(is_a_complain(lemmatized, freq_dict)):
-        aux_json += "{\"link\":\"" + post['link'] + "\", \"id\":" + post['id'] + ", \"text\":\"" + post['text'] + "\", \"user\":\"" + post['user'] + "\", \"date\":"\
-                   + str(int(post['date'].timestamp())) +", \"likes\":" + str(post['likes']) + ", \"retweets\":" + str(post['retweets']) + ", \"replies\":" + str(post['replies']) + ", \"hashtags\":"
+        aux_json += "{\"link\":\"" + post['link'] + "\", \"id\":\"" + post[
+            'id'] + "\", \"text\":\"" + clean_text_final_format(post["text"]) \
+                    + "\", \"user\":\"" + post['user'] + "\", \"date\":" \
+                    + str(int(post['date'].timestamp())) + ", \"likes\":" + str(
+            post['likes']) + ", \"retweets\":" + str(post['retweets']) + ", \"replies\":" + str(
+            post['replies']) + ", \"hashtags\":"
         aux_hashtags = "["
         for h in post['hashtags']:
             aux_hashtags += ("\"" + h + "\", ")
@@ -70,8 +81,26 @@ def text_analysis(post, nlp, nlp_s, freq_dict,f):
             aux_hashtags = aux_hashtags[:-2]
         aux_hashtags += "]"
 
-        aux_json += (aux_hashtags + "}, ")
+        aux_json += (aux_hashtags + "}, \n")
         f.write(aux_json)
+
+    else:
+        aux_json += "{\"link\":\"" + post['link'] + "\", \"id\":\"" + post[
+            'id'] + "\", \"text\":\"" + clean_text_final_format(post["text"]) \
+                    + "\", \"user\":\"" + post['user'] + "\", \"date\":" \
+                    + str(int(post['date'].timestamp())) + ", \"likes\":" + str(
+            post['likes']) + ", \"retweets\":" + str(post['retweets']) + ", \"replies\":" + str(
+            post['replies']) + ", \"hashtags\":"
+        aux_hashtags = "["
+        for h in post['hashtags']:
+            aux_hashtags += ("\"" + h + "\", ")
+
+        if (len(aux_hashtags) > 1):
+            aux_hashtags = aux_hashtags[:-2]
+        aux_hashtags += "]"
+
+        aux_json += (aux_hashtags + "}, \n")
+        f_n.write(aux_json)
 
 
 
@@ -86,6 +115,9 @@ def main():
     collection = db['test_scrape']
 
     f = open("../../json/examples_scrape.json", 'a')
+    f_n = open("../../json/not_examples_scrape.json", 'a')
+    f_n.seek(0, os.SEEK_SET)
+    f_n.truncate()
     f.write("[")
     client = MongoClient()
     db = client['tweet_stream']
@@ -100,7 +132,7 @@ def main():
      query["WORD"][5] + " OR " + query["WORD"][6] + " OR " + query["WORD"][7] + " OR " + query["WORD"][8] + " OR " + query["WORD"][9] + " OR " +\
      query["WORD"][10] + " OR " + query["WORD"][11] + " OR " + query["WORD"][12] + " OR " + query["WORD"][13] + " OR " + query["WORD"][14] + " OR " +\
      query["WORD"][15] + " OR " + query["WORD"][16] + " OR " + query["WORD"][17] + " OR " + query["WORD"][18] + " OR " + query["WORD"][19] + " OR " +
-     query["WORD"][20] + " OR " + query["WORD"][21] + " OR " + query["WORD"][22] + " OR " + query["WORD"][23] + " OR " + query["WORD"][24] + " lang:es -is:retweet").get_items()):
+     query["WORD"][20] + " OR " + query["WORD"][21] + " OR " + query["WORD"][22] + " OR " + query["WORD"][23] + " OR " + query["WORD"][24] + " lang:es -is:retweet since:2022-04-15 until:2022-04-29").get_items()):
         tweet_id = str(tweet.id)
 
         # if hasattr(status, "retweeted_status"):  # Check if Retweet
@@ -130,7 +162,7 @@ def main():
                 'retweets': n_retweets, 'replies': n_replies, 'hashtags': l_hashtags}
 
         collection.insert_one(post)
-        text_analysis(post, nlp, nlp_s, freq_dict, f)
+        text_analysis(post, nlp, nlp_s, freq_dict, f, f_n)
         collection.delete_one({"_id": post['_id']})
 
     f.seek(-2, os.SEEK_END)

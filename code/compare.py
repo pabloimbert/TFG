@@ -1,13 +1,14 @@
 import re
 import stanza
-
 from django.conf import settings
-settings.configure()
 import pandas as pd
 import spacy
 import emoji
 from sklearn import metrics
+settings.configure()
 
+
+# Method to clean the text for analyzing it. It strips it from emojis, symbols, links, hashtags and mentions, it also normalizes it.
 def clean_text(text):
 
     clean_text = re.sub(emoji.get_emoji_regexp(), " ", text)
@@ -18,9 +19,12 @@ def clean_text(text):
 
     return " ".join(clean_text.split())
 
+
 def main():
 
     #os.chdir('dict')
+
+    # We read the dictionary and the reviews that are going to be used as the corpus.
     freq_dict = pd.read_csv("../dict/FREQUENCIES_DIC.csv")
     labels = []
     processed_labels = []
@@ -32,11 +36,12 @@ def main():
     texts = []
 
 
-    #WE KNOW THAT NONE OF THESE ARTICLES ARE COMPLAINTS
+    # We know that none of those reviews are complaints, so we classify them with a 0.
     for news in texts_news:
         labels.append(0)
         texts.append(news)
 
+    # We already stated on /code/intagram/training.py that all these were actual complaints, so we classify them with a 1
     training = pd.read_csv("../text/training.csv")
     texts_training = training['Text']
 
@@ -47,7 +52,7 @@ def main():
     nlp = spacy.load("es_core_news_sm")
     nlp_s = stanza.Pipeline(lang='es', processors='tokenize,mwt,pos,lemma')
 
-
+    # For each review, they will be cleaned, tokenized, and lemmatized.
     for text in texts_news:
         value = 0
         lemmatized = []
@@ -63,27 +68,31 @@ def main():
         # stanza.download('es')
         doc = nlp_s(stringed)
 
+        # We keep a list of lemmas
         for sent in doc.sentences:
             for word in sent.words:
                 lemmatized.append(word.lemma)
-#############################################################
+
         aux = []
+        # For each text, we consider that if it has a word from the dictionary repeated it will only count its first appearance
         repeated_words = []
         for i in range(len(freq_dict)):
             if freq_dict["WORD"][i] in lemmatized and freq_dict["WORD"][i] not in repeated_words:
-                value+=1
+                value += 1
                 repeated_words.append(freq_dict["WORD"][i])
                 aux.append(freq_dict["WORD"][i])
-
+        # We add the list of words that each text obtained to a list, to observe if the algorithm is working
         words_in_dic.append(aux)
 
-        if (value/len(freq_dict) >= 0.0533):
+        # if it has the necessary percentage of the dictionary to be considered a complaint it will be labeled as so
+        # This value has been changed multiple times in order to determine which percentage was more accurate.
+        if (value/len(freq_dict) >= 0.0534):
             processed_labels.append(1)
         else:
             processed_labels.append(0)
-#############################################################
 
 
+    # The exact same thing will now be done to the actual complaints.
     for text in texts_training:
         value = 0
         lemmatized = []
@@ -114,17 +123,13 @@ def main():
                 aux.append(freq_dict["WORD"][i])
         words_in_dic.append(aux)
 
-        if (value/len(freq_dict) >= 0.0533):
+        if (value/len(freq_dict) >= 0.0534):
             processed_labels.append(1)
         else:
             processed_labels.append(0)
 
-
-
-
-
-
-
+    # When all of that is done we will print the true positives, true negatives, false positives and false negatives.
+    # The trues are those whose labels correspond with their processed labels and the false those who not.
     print("----------------------- TRUE POSITIVES -----------------------")
     for i in range(len(labels)):
         if processed_labels[i] == labels[i] and labels[i] == 1:
@@ -149,9 +154,7 @@ def main():
             print(texts[i], "\n")
             print(words_in_dic[i], "\n")
 
-
-
-
+    # Finally we print the confussion matrix, and all metric we deemed important.
     cm_results = metrics.confusion_matrix(labels, processed_labels)
     print(cm_results)
     print(f'Accuracy: {round(metrics.accuracy_score(labels, processed_labels), 2)}')
@@ -159,9 +162,6 @@ def main():
     print(f'ROC-AUC: {round(metrics.roc_auc_score(labels, processed_labels), 2)}')
     print(f'Precision: {round(metrics.precision_score(labels, processed_labels), 2)}')
     print(f'F1: {round(metrics.f1_score(labels, processed_labels), 2)}')
-
-    #for label in processed_labels:
-
 
 
 if __name__ == "__main__":
